@@ -1,0 +1,87 @@
+#pragma hdrstop
+#pragma argsused
+
+#ifdef _WIN32
+#include <tchar.h>
+#else
+  typedef char _TCHAR;
+  #define _tmain main
+#endif
+
+#include <stdio.h>
+#include <string>
+#include <iostream>
+#include <vector>
+#include <Windows.h>
+using namespace std;
+
+#include <filesystem>
+namespace fs = std::filesystem;
+
+#include <direct.h>
+
+int _tmain(int argc, _TCHAR* argv[]) 
+{
+system("chcp 1251"); //кодировка
+system("cls");       //очистка окна консоли
+
+string path;  //путь к папке
+vector <string> mas; //вектор списка файлов
+string MainPath;  //путь в корень
+cout << "Directory main path (E:/test): "; cin >> MainPath;
+MainPath += '/';
+cout << "Directory path search (E:/test/1): "; cin >> path;
+int sizePath = path.length();  //длина пути в папку, для отделения имён от пути
+int col; cout << "Directory col: "; cin >> col;  //количество одинаковых песен в папке
+
+for (int k = 0; k<10; k++) //попытки поиска
+	{
+	int i = 0;
+	for (const auto & entry : fs::directory_iterator(path)) //получение списка файлов
+		{
+		string str = entry.path().string();
+		str.erase(0,sizePath+1);
+		mas.push_back(str);
+		}
+
+	vector <string> song;  //вектор одной папки
+
+	for (unsigned j=0;j<mas.size();j++) //сравнение и перемещение
+		{
+		string name1 = mas[j];
+		song.push_back(name1);
+		int pos1 = name1.find(" - ");
+		string name2;
+		for (unsigned i=j+1;i<mas.size();i++) //сравнение
+			{
+			name2 = mas[i];
+			if (name1.substr(0,pos1) == name2.substr(0,pos1))
+				{
+				song.push_back(name2);
+				}
+			}
+
+		if (song.size() >= col) //проверка совпадения с количеством одинаковых
+			{
+			string Dir = MainPath + name1.substr(0,pos1);
+			char dir [256];
+			strcpy(dir, Dir.c_str());
+			mkdir(dir);   //создание папки
+			for (unsigned i=0;i<song.size();i++)  //перемещение
+				{
+				string DirOut = path + '/' + song[i];
+				LPCTSTR dirOut = DirOut.c_str();
+				string DirIn = MainPath + name1.substr(0,pos1-1) + '/' + song[i];
+				LPCTSTR dirIn = DirIn.c_str();
+				MoveFile( dirOut , dirIn );
+				}
+			song.clear();
+			break;  //выход из поиска к новой попытке
+			}
+		else song.clear();
+		}
+	mas.clear();
+	}
+system ("pause");
+return 0;
+}

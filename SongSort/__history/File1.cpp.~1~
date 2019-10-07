@@ -1,0 +1,71 @@
+#pragma hdrstop
+#pragma argsused
+
+#ifdef _WIN32
+#include <tchar.h>
+#else
+  typedef char _TCHAR;
+  #define _tmain main
+#endif
+
+#include <stdio.h>
+#include <string>
+#include <iostream>
+#include <vector>
+using namespace std;
+
+#include <filesystem>
+namespace fs = std::filesystem;
+
+int _tmain(int argc, _TCHAR* argv[]) 
+{
+system("chcp 1251"); //кодировка
+system("cls");       //очистка окна консоли
+
+string path;
+vector <string> mas;
+path = "E:/test/1";
+//cout << "Directory path (E:/test/1): "; cin >> path;
+int sizePath = path.length();
+
+int i = 0;
+for (const auto & entry : fs::directory_iterator(path))
+	{
+	string str = entry.path().string();
+	str.erase(0,sizePath+1);
+	mas.push_back(str);
+	std::cout << mas[i] << std::endl;
+	i++;
+	}
+
+vector <string> song;
+bool search = true;
+while (search)
+	{
+	for (unsigned j=0;j<mas.size();j++)
+		{
+		string name1 = mas[j];
+		song.push_back(name1);
+		int pos1 = name1.find('-');
+		string name2;
+		for (unsigned i=1;i<mas.size();i++)
+			{
+			name2 = mas[i];
+			if (name1.substr(0,pos1) == name2.substr(0,pos1))
+				{
+				song.push_back(name2);
+				}
+			}
+				//for (unsigned i=0;i<song.size();i++)
+				//	cout << song[i] << endl;
+		if (song.size() > 3) ///Поменять на переменную
+			{
+			//берём пути и делаем папку с именами
+			}
+		else song.clear();
+		}
+	}
+
+system ("pause");
+return 0;
+}
